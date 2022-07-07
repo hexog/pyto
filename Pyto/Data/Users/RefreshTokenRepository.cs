@@ -9,6 +9,7 @@ public interface IRefreshTokenRepository
 
 	Task<int> RemoveExpiredTokens(CancellationToken stoppingToken);
 	Task RemoveAsync(RefreshTokenDbo refreshToken);
+	Task RemoveByUserIdAsync(Guid userId);
 }
 
 public class RefreshTokenRepository : IRefreshTokenRepository
@@ -64,5 +65,12 @@ public class RefreshTokenRepository : IRefreshTokenRepository
 	{
 		dbContext.RefreshTokens.Remove(refreshToken);
 		return dbContext.SaveChangesAsync();
+	}
+
+	public async Task RemoveByUserIdAsync(Guid userId)
+	{
+		var tokens = await dbContext.RefreshTokens.Where(x => x.UserId == userId).ToListAsync().ConfigureAwait(false);
+		dbContext.RemoveRange(tokens);
+		await dbContext.SaveChangesAsync().ConfigureAwait(false);
 	}
 }

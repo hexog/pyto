@@ -16,6 +16,7 @@ public interface IAuthenticationService
 {
 	Task<AuthenticationResult> GetUserTokensAsync(UserDbo user);
 	Task<AuthenticationResult?> RefreshTokens(string refreshToken);
+	Task LogoutAsync(UserDbo user);
 }
 
 public class AuthenticationService : IAuthenticationService
@@ -70,6 +71,11 @@ public class AuthenticationService : IAuthenticationService
 		await refreshTokenRepository.RemoveAsync(existingToken).ConfigureAwait(false);
 
 		return await GetUserTokensAsync(existingToken.User, existingToken).ConfigureAwait(false);
+	}
+
+	public Task LogoutAsync(UserDbo user)
+	{
+		return refreshTokenRepository.RemoveByUserIdAsync(user.Id);
 	}
 
 	private (string Token, DateTime ValidTo) GenerateRefreshToken(RefreshTokenDbo? previousToken = null)

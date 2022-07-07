@@ -12,7 +12,7 @@ using Pyto.Services.TodoList;
 
 namespace Pyto.Controllers;
 
-[Route("todo-list")]
+[Route("api/v0/todo-list")]
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class TodoListController : ApplicationControllerBase
 {

@@ -1,4 +1,7 @@
-﻿using System.Security.Cryptography;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Pyto.Controllers.Authorization;
@@ -10,7 +13,7 @@ using Pyto.Services.Authentication;
 
 namespace Pyto.Controllers;
 
-[Route("account")]
+[Route("api/v0/account")]
 public class AccountController : ApplicationControllerBase
 {
 	private readonly UserManager<UserDbo> userManager;
@@ -77,9 +80,9 @@ public class AccountController : ApplicationControllerBase
 	}
 
 	[HttpPost("refresh")]
-	public async Task<ActionResult<LoginResponse>> Refresh(string refreshToken)
+	public async Task<ActionResult<LoginResponse>> Refresh([Required] string token)
 	{
-		var tokens = await authenticationService.RefreshTokens(refreshToken).ConfigureAwait(true);
+		var tokens = await authenticationService.RefreshTokens(token).ConfigureAwait(true);
 		if (tokens is null)
 		{
 			return this.NotFound(new ErrorResponse("Refresh token not found"));
@@ -91,6 +94,17 @@ public class AccountController : ApplicationControllerBase
 			RefreshToken = tokens.RefreshToken.Token,
 			AccessTokenValidTo = tokens.AccessToken.ValidTo,
 		};
+	}
+
+	[Authorize(AuthenticationSchemes =
+		JwtBearerDefaults.AuthenticationScheme /*TODO: remove when AddIdentityCore is used*/)]
+	[HttpPost("logout")]
+	public async Task<ActionResult> Logout()
+	{
+		var userEmail = this.UserEmail;
+		var user = await userManager.FindByEmailAsync(userEmail).ConfigureAwait(true);
+		await authenticationService.LogoutAsync(user).ConfigureAwait(false);
+		return this.NoContent();
 	}
 
 	private async Task<LoginResponse> LoginInnerAsync(UserDbo user)

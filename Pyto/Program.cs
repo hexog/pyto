@@ -1,6 +1,8 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -52,7 +54,7 @@ builder.Services.AddSwaggerGen(o =>
 
 builder.Services.AddDbContext<ApplicationDbContext>(
 	o => o.UseSqlite(builder.Configuration.GetConnectionString("Sqlite")));
-builder.Services.AddIdentity<UserDbo, IdentityRole<Guid>>()
+builder.Services.AddIdentity<UserDbo, IdentityRole<Guid>>() // TODO: use AddIdentityCore so cookies are not configured
    .AddEntityFrameworkStores<ApplicationDbContext>()
    .AddDefaultTokenProviders();
 
@@ -63,9 +65,11 @@ builder.Services
 		o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
 	});
 
+// builder.Services.AddCors();
+
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication()
-   .AddJwtBearer(o =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+   .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, o =>
 	{
 		o.SaveToken = true;
 		if (builder.Environment.IsDevelopment())
@@ -79,9 +83,12 @@ builder.Services.AddAuthentication()
 			ValidateAudience = true,
 			ValidAudience = builder.Configuration["Authentication:JWT:ValidAudience"],
 			ValidIssuer = builder.Configuration["Authentication:JWT:ValidIssuer"],
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:JWT:Key"])),
+			IssuerSigningKey =
+				new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:JWT:Key"])),
 		};
 	});
+
+builder.WebHost.UseUrls(builder.Configuration["ServerUrls"]);
 
 AddApplicationServices(builder.Services);
 

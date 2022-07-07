@@ -48,17 +48,20 @@ public class TodoListService : ITodoListService
 
 	public Task DeleteAsync(Todo todo)
 	{
+		// todo: delete only user's todo
 		return todoRepository.RemoveAsync(todo);
 	}
 
 	public async Task<Todo> UpdateAsync(Todo todo)
 	{
+		// todo: update only user's todo
 		todo = await todoRepository.UpdateAsync(todo).ConfigureAwait(false);
 		return todo;
 	}
 
 	public async Task DeleteAsync(Guid todoId)
 	{
+		// todo: delete only user's todo
 		var todo = await todoRepository.ReadAsync(todoId).ConfigureAwait(false);
 		await DeleteAsync(todo).ConfigureAwait(false);
 	}
