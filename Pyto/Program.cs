@@ -1,4 +1,6 @@
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,6 +11,8 @@ using Pyto.Data.Users;
 using Pyto.Services;
 using Pyto.Services.Authentication;
 using Pyto.Services.Common;
+using Pyto.Services.TodoList;
+using TodoRepository = Pyto.Data.Todo.TodoRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +55,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 builder.Services.AddIdentity<UserDbo, IdentityRole<Guid>>()
    .AddEntityFrameworkStores<ApplicationDbContext>()
    .AddDefaultTokenProviders();
+
+builder.Services
+   .AddControllers()
+   .AddJsonOptions(o =>
+	{
+		o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+	});
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication()
@@ -98,7 +109,8 @@ void AddApplicationServices(IServiceCollection serviceCollection)
 {
 	// Repositories
 	serviceCollection
-	   .AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+	   .AddScoped<IRefreshTokenRepository, RefreshTokenRepository>()
+	   .AddScoped<ITodoRepository, TodoRepository>();
 
 	// Processes
 	serviceCollection
@@ -107,5 +119,6 @@ void AddApplicationServices(IServiceCollection serviceCollection)
 
 	// Services
 	serviceCollection
-	   .AddScoped<IAuthenticationService, AuthenticationService>();
+	   .AddScoped<IAuthenticationService, AuthenticationService>()
+	   .AddTransient<ITodoListServiceFactory, TodoListServiceFactory>();
 }

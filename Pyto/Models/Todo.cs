@@ -6,10 +6,11 @@ public enum TodoState
 	Checked = 2,
 }
 
-public record Todo(Guid Id, string Name, TodoState State)
+
+public record Todo(Guid Id, string Content, TodoState State, Guid AuthorId)
 {
-	public static Todo Create(string name, TodoState state = TodoState.Unchecked)
+	public static Todo Create(string name, Guid authorId, TodoState state = TodoState.Unchecked)
 	{
-		return new Todo(Guid.NewGuid(), name, state);
+		return new Todo(Guid.NewGuid(), name, state, authorId);
 	}
 }

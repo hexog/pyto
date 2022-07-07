@@ -1,4 +1,5 @@
 ﻿using Pyto.Data.Todo;
+using Pyto.Data.Users;
 
 namespace Pyto.Services.TodoList;
 
@@ -18,8 +19,8 @@ public class TodoListServiceFactory : ITodoListServiceFactory
 
 	public ITodoListService Create(UserDbo author)
 	{
-		using var serviceScope = serviceProvider.CreateScope();
+		var serviceScope = serviceProvider.CreateScope();
 
-		return new TodoListService(author);
+		return new TodoListService(author, serviceScope.ServiceProvider.GetRequiredService<ITodoRepository>());
 	}
 }

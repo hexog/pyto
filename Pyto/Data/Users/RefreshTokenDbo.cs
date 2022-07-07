@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using Pyto.Data.Todo;
 
 #nullable disable
 namespace Pyto.Data.Users;

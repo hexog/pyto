@@ -8,6 +8,7 @@ using Pyto.Controllers.Helpers;
 using Pyto.Controllers.Models;
 using Pyto.Data.Users;
 using Pyto.Models;
+using Pyto.Services.TodoList;
 
 namespace Pyto.Controllers;
 
@@ -15,28 +16,54 @@ namespace Pyto.Controllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class TodoListController : ApplicationControllerBase
 {
+	private readonly ITodoListServiceFactory todoListServiceFactory;
+	private readonly UserManager<UserDbo> userManager;
+
+	public TodoListController(ITodoListServiceFactory todoListServiceFactory, UserManager<UserDbo> userManager)
+	{
+		this.todoListServiceFactory = todoListServiceFactory;
+		this.userManager = userManager;
+	}
+
+	private async Task<ITodoListService> GetTodoListService()
+	{
+		var user = await userManager.FindByEmailAsync(this.UserEmail).ConfigureAwait(true);
+		return todoListServiceFactory.Create(user);
+	}
+
 	[HttpGet]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[Produces(ContentTypes.ApplicationJson)]
-	public ActionResult<TodoListResponse> GetTodos()
+	public async Task<ActionResult<TodoListResponse>> GetTodos()
 	{
-		return new TodoListResponse
-		{
-			TodoList = new TodoResponse[]
-			{
-				new TodoResponse
-				{
-					Content = "Foo content",
-					Id = Guid.Parse("1B7DD6C4-5181-43B0-B20F-A9D1C96116A5"),
-					TodoState = TodoState.Checked,
-				}
-			}
-		};
+		var todoService = await GetTodoListService().ConfigureAwait(false);
+		return (TodoListResponse)await todoService.GetAllAsync().ConfigureAwait(false);
 	}
 
-	public Task<ActionResult<TodoResponse>> CreateTodo()
+	[HttpPost]
+	public async Task<ActionResult<TodoModel>> CreateTodo([FromBody] CreateTodoRequest createTodoRequest)
 	{
-		throw new NotImplementedException();
+		var todoListService = await GetTodoListService().ConfigureAwait(true);
+		var todo = await todoListService.CreateAsync(new(createTodoRequest.Name)).ConfigureAwait(false);
+
+		return (TodoModel)todo;
+	}
+
+	[HttpPatch]
+	public async Task<ActionResult<TodoModel>> UpdateTodo([FromBody] TodoModel todoModel)
+	{
+		var todoListService = await GetTodoListService().ConfigureAwait(false);
+		var todo = await todoListService.UpdateAsync(TodoModel.Convert(todoModel, todoListService.Author.Id))
+		   .ConfigureAwait(false);
+		return (TodoModel)todo;
+	}
+
+	[HttpDelete("{todoId:guid}")]
+	public async Task<ActionResult> DeleteTodo(Guid todoId)
+	{
+		var todoListService = await GetTodoListService().ConfigureAwait(false);
+		await todoListService.DeleteAsync(todoId).ConfigureAwait(false);
+		return this.NoContent();
 	}
 }

@@ -15,4 +15,11 @@ public class ApplicationDbContext : IdentityDbContext<UserDbo, IdentityRole<Guid
 
 	public DbSet<TodoDbo> Todos { get; set; }
 	public DbSet<RefreshTokenDbo> RefreshTokens { get; set; }
+
+	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+	{
+		base.OnConfiguring(optionsBuilder);
+
+		optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTrackingWithIdentityResolution);
+	}
 }

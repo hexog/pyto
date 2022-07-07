@@ -4,7 +4,6 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using Pyto.Data.Todo;
 using Pyto.Data.Users;
 using Pyto.Models.Extensions;
 

@@ -1,10 +1,10 @@
 ﻿#nullable disable
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using Pyto.Data.Todo;
+using Pyto.Data.Users;
 using Pyto.Models;
 
-namespace Pyto.Data.Users;
+namespace Pyto.Data.Todo;
 
 [Index(nameof(Content))]
 public class TodoDbo

@@ -1,7 +1,7 @@
 ﻿#nullable disable
 using Microsoft.AspNetCore.Identity;
 
-namespace Pyto.Data.Todo;
+namespace Pyto.Data.Users;
 
 public class UserDbo : IdentityUser<Guid>
 {

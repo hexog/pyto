@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Pyto.Controllers.Authorization;
 using Pyto.Controllers.Helpers;
 using Pyto.Controllers.Models;
-using Pyto.Data.Todo;
 using Pyto.Data.Users;
 using Pyto.Services;
 using Pyto.Services.Authentication;
