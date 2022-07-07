@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
-using Pyto.Controllers.Authorization.Helpers;
+using Pyto.Controllers.Helpers;
 using Pyto.Controllers.Models;
 using Pyto.Data.Users;
 using Pyto.Models;
@@ -33,5 +33,10 @@ public class TodoListController : ApplicationControllerBase
 				}
 			}
 		};
+	}
+
+	public Task<ActionResult<TodoResponse>> CreateTodo()
+	{
+		throw new NotImplementedException();
 	}
 }

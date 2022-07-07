@@ -1,16 +1,13 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using Pyto.Controllers.Authorization;
-using Pyto.Controllers.Authorization.Helpers;
+using Pyto.Controllers.Helpers;
 using Pyto.Controllers.Models;
+using Pyto.Data.Todo;
 using Pyto.Data.Users;
-using Pyto.Models.Extensions;
-using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
+using Pyto.Services;
+using Pyto.Services.Authentication;
 
 namespace Pyto.Controllers;
 
@@ -21,12 +18,15 @@ public class AccountController : ApplicationControllerBase
 	private readonly RandomNumberGenerator rng = RandomNumberGenerator.Create();
 	private readonly IConfiguration configuration;
 	private readonly RoleManager<IdentityRole<Guid>> roleManager;
+	private readonly IAuthenticationService authenticationService;
 
-	public AccountController(UserManager<UserDbo> userManager, IConfiguration configuration, RoleManager<IdentityRole<Guid>> roleManager)
+	public AccountController(UserManager<UserDbo> userManager, IConfiguration configuration,
+							 RoleManager<IdentityRole<Guid>> roleManager, IAuthenticationService authenticationService)
 	{
 		this.userManager = userManager;
 		this.configuration = configuration;
 		this.roleManager = roleManager;
+		this.authenticationService = authenticationService;
 	}
 
 	[HttpPost("register")]
@@ -40,7 +40,7 @@ public class AccountController : ApplicationControllerBase
 			return this.BadRequest(this.ModelState);
 		}
 
-		var email = await userManager.FindByEmailAsync(request.Email);
+		var email = await userManager.FindByEmailAsync(request.Email).ConfigureAwait(true);
 		if (email is not null)
 		{
 			return this.BadRequest(new ErrorResponse("User already exists"));
@@ -52,63 +52,57 @@ public class AccountController : ApplicationControllerBase
 			UserName = request.Email,
 		};
 
-		var identityResult = await userManager.CreateAsync(user, request.Password);
+		var identityResult = await userManager.CreateAsync(user, request.Password).ConfigureAwait(true);
 		if (identityResult.Succeeded == false)
 		{
 			return this.StatusCode(StatusCodes.Status500InternalServerError,
 								   new ErrorResponse("User creation failed! Please check user details and try again."));
 		}
 
-		await userManager.AddToRoleAsync(user, Roles.User);
+		await userManager.AddToRoleAsync(user, Roles.User).ConfigureAwait(true);
 
-		return await LoginInnerAsync(user);
+		return await LoginInnerAsync(user).ConfigureAwait(true);
 	}
 
 	[Route("login")]
 	[HttpPost]
 	public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest loginRequest)
 	{
-		var user = await userManager.FindByEmailAsync(loginRequest.Email);
-		if (user is not null && await userManager.CheckPasswordAsync(user, loginRequest.Password))
+		var user = await userManager.FindByEmailAsync(loginRequest.Email).ConfigureAwait(true);
+		if (user is not null && await userManager.CheckPasswordAsync(user, loginRequest.Password).ConfigureAwait(true))
 		{
-			return await LoginInnerAsync(user);
+			return await LoginInnerAsync(user).ConfigureAwait(true);
 		}
 
 		return this.Unauthorized(new ErrorResponse("Invalid email or password."));
 	}
 
-	private async Task<LoginResponse> LoginInnerAsync(UserDbo user)
+	[HttpPost("refresh")]
+	public async Task<ActionResult<LoginResponse>> Refresh(string refreshToken)
 	{
-		var userRoles = await userManager.GetRolesAsync(user);
-
-		var claims = new List<Claim>(userRoles.Count + 4)
+		var tokens = await authenticationService.RefreshTokens(refreshToken).ConfigureAwait(true);
+		if (tokens is null)
 		{
-			new(JwtRegisteredClaimNames.Sub, user.Email),
-			new(JwtRegisteredClaimNames.Jti, rng.GetString(32)),
-		};
-
-		claims.AddRange(userRoles.Select(userRole => new Claim(ClaimTypes.Role, userRole)));
-
-		var token = GenerateUserToken(claims);
+			return this.NotFound(new ErrorResponse("Refresh token not found"));
+		}
 
 		return new LoginResponse
 		{
-			Token = new JwtSecurityTokenHandler().WriteToken(token),
-			Expiration = token.ValidTo,
+			AccessToken = tokens.AccessToken.Token,
+			RefreshToken = tokens.RefreshToken.Token,
+			AccessTokenValidTo = tokens.AccessToken.ValidTo,
 		};
 	}
 
-	private JwtSecurityToken GenerateUserToken(IList<Claim> claims)
+	private async Task<LoginResponse> LoginInnerAsync(UserDbo user)
 	{
-		var authSigningKey =
-			new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
+		var authenticationResult = await authenticationService.GetUserTokensAsync(user).ConfigureAwait(true);
 
-		return new JwtSecurityToken(
-			issuer: configuration["JWT:ValidIssuer"],
-			audience: configuration["JWT:ValidAudience"],
-			expires: DateTime.Now.AddHours(8),
-			claims: claims,
-			signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-		);
+		return new LoginResponse
+		{
+			AccessToken = authenticationResult.AccessToken.Token,
+			AccessTokenValidTo = authenticationResult.AccessToken.ValidTo,
+			RefreshToken = authenticationResult.RefreshToken.Token,
+		};
 	}
 }

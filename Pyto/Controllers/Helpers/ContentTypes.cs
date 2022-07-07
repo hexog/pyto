@@ -1,4 +1,4 @@
-﻿namespace Pyto.Controllers.Authorization.Helpers;
+﻿namespace Pyto.Controllers.Helpers;
 
 public class ContentTypes
 {

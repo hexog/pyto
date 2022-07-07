@@ -4,7 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Pyto.Data;
+using Pyto.Data.Todo;
 using Pyto.Data.Users;
+using Pyto.Services;
+using Pyto.Services.Authentication;
+using Pyto.Services.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,11 +66,13 @@ builder.Services.AddAuthentication()
 		{
 			ValidateIssuer = true,
 			ValidateAudience = true,
-			ValidAudience = builder.Configuration["JWT:ValidAudience"],
-			ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])),
+			ValidAudience = builder.Configuration["Authentication:JWT:ValidAudience"],
+			ValidIssuer = builder.Configuration["Authentication:JWT:ValidIssuer"],
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:JWT:Key"])),
 		};
 	});
+
+AddApplicationServices(builder.Services);
 
 var app = builder.Build();
 
@@ -87,3 +93,19 @@ app.MapControllers();
 DataInitializer.InitializeRoles(app.Services).Wait();
 
 app.Run();
+
+void AddApplicationServices(IServiceCollection serviceCollection)
+{
+	// Repositories
+	serviceCollection
+	   .AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+	// Processes
+	serviceCollection
+	   .AddScoped<RefreshTokenDeleteProcess>()
+	   .AddHostedService<TimedProcessRunner<RefreshTokenDeleteProcess>>();
+
+	// Services
+	serviceCollection
+	   .AddScoped<IAuthenticationService, AuthenticationService>();
+}
