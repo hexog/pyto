@@ -2,7 +2,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -10,7 +9,6 @@ using Microsoft.OpenApi.Models;
 using Pyto.Data;
 using Pyto.Data.Todo;
 using Pyto.Data.Users;
-using Pyto.Services;
 using Pyto.Services.Authentication;
 using Pyto.Services.Common;
 using Pyto.Services.TodoList;
@@ -65,7 +63,6 @@ builder.Services
 		o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
 	});
 
-// builder.Services.AddCors();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -5,5 +5,5 @@ namespace Pyto.Controllers;
 
 public abstract class ApplicationControllerBase : ControllerBase
 {
-	public string UserEmail => HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+	protected string UserEmail => HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 }

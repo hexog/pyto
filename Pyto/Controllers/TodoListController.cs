@@ -1,13 +1,10 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Pyto.Controllers.Helpers;
 using Pyto.Controllers.Models;
 using Pyto.Data.Users;
-using Pyto.Models;
 using Pyto.Services.TodoList;
 
 namespace Pyto.Controllers;
@@ -44,6 +41,11 @@ public class TodoListController : ApplicationControllerBase
 	[HttpPost]
 	public async Task<ActionResult<TodoModel>> CreateTodo([FromBody] CreateTodoRequest createTodoRequest)
 	{
+		if (this.ModelState.IsValid == false)
+		{
+			return this.BadRequest(this.ModelState);
+		}
+
 		var todoListService = await GetTodoListService().ConfigureAwait(true);
 		var todo = await todoListService.CreateAsync(new(createTodoRequest.Name)).ConfigureAwait(false);
 
@@ -53,6 +55,11 @@ public class TodoListController : ApplicationControllerBase
 	[HttpPatch]
 	public async Task<ActionResult<TodoModel>> UpdateTodo([FromBody] TodoModel todoModel)
 	{
+		if (this.ModelState.IsValid == false)
+		{
+			return this.BadRequest(this.ModelState);
+		}
+
 		var todoListService = await GetTodoListService().ConfigureAwait(false);
 		var todo = await todoListService.UpdateAsync(TodoModel.Convert(todoModel, todoListService.Author.Id))
 		   .ConfigureAwait(false);
@@ -62,6 +69,11 @@ public class TodoListController : ApplicationControllerBase
 	[HttpDelete("{todoId:guid}")]
 	public async Task<ActionResult> DeleteTodo(Guid todoId)
 	{
+		if (this.ModelState.IsValid == false)
+		{
+			return this.BadRequest(this.ModelState);
+		}
+
 		var todoListService = await GetTodoListService().ConfigureAwait(false);
 		await todoListService.DeleteAsync(todoId).ConfigureAwait(false);
 		return this.NoContent();

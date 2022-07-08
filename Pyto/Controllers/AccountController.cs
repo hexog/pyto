@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -8,26 +7,21 @@ using Pyto.Controllers.Authorization;
 using Pyto.Controllers.Helpers;
 using Pyto.Controllers.Models;
 using Pyto.Data.Users;
-using Pyto.Services;
 using Pyto.Services.Authentication;
 
 namespace Pyto.Controllers;
 
 [Route("api/v0/account")]
+[ApiController]
 public class AccountController : ApplicationControllerBase
 {
 	private readonly UserManager<UserDbo> userManager;
-	private readonly RandomNumberGenerator rng = RandomNumberGenerator.Create();
-	private readonly IConfiguration configuration;
-	private readonly RoleManager<IdentityRole<Guid>> roleManager;
 	private readonly IAuthenticationService authenticationService;
 
 	public AccountController(UserManager<UserDbo> userManager, IConfiguration configuration,
 							 RoleManager<IdentityRole<Guid>> roleManager, IAuthenticationService authenticationService)
 	{
 		this.userManager = userManager;
-		this.configuration = configuration;
-		this.roleManager = roleManager;
 		this.authenticationService = authenticationService;
 	}
 

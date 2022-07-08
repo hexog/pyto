@@ -235,7 +235,7 @@ namespace Pyto.Migrations
 
                     b.HasIndex("ValidTo");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("Pyto.Data.Users.TodoDbo", b =>
@@ -266,7 +266,7 @@ namespace Pyto.Migrations
 
                     b.HasIndex("Content");
 
-                    b.ToTable("Todos");
+                    b.ToTable("Todos", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
