@@ -100,31 +100,6 @@
     background-color: var(--primary);
   }
 
-  .todo-item-name {
-    display: flex;
-    flex-grow: 1;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .todo-item-name * {
-    display: flex;
-    flex-grow: 1;
-
-    height: 2rem;
-    padding: 0 0 0 0.5rem;
-  }
-
-  .todo-item-name-text {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-  }
-
-  .todo-item-name-edit {
-    border: none;
-  }
-
   .invisible {
     display: none;
   }

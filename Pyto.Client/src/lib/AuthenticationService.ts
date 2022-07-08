@@ -5,87 +5,23 @@ const commonHeaders = {
     "Content-Type": "application/json",
 };
 
-export function login(email: string, password: string) {
-    return (tokenReadLock = new Promise<void>(async (resolve) => {
-        const request = fetch(`${urlBase}/account/login`, {
-            method: "POST",
-            body: JSON.stringify({ email, password }),
-            headers: commonHeaders,
-        });
-
-        const result = await handleResponse(request);
-        useToken(result.accessToken, result.validTo, result.refreshToken);
-        resolve();
-    }));
-}
-
-export function register(email: string, password: string) {
-    return tokenReadLock = new Promise<void>(async (resolve) => {
-        const request = fetch(`${urlBase}/account/register`, {
-            method: "POST",
-            body: JSON.stringify({ email, password }),
-            headers: commonHeaders,
-        });
-
-        const result = await handleResponse(request);
-        useToken(result.accessToken, result.validTo, result.refreshToken);
-        resolve();
-    });
-}
-
-function useToken(accessToken: string, validTo: Date, refreshToken: string) {
-    sessionStorage.setItem(
-        "accessToken",
-        JSON.stringify({ accessToken, validTo })
-    );
-    localStorage.setItem("refreshToken", JSON.stringify({ refreshToken }));
-}
-
-function clearTokens() {
-    sessionStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-}
-
-let tokenReadLock: Promise<void> | null = null;
-
-export async function readAccessToken(): Promise<string> {
-    if (tokenReadLock) {
-        await tokenReadLock;
+const readTokenLockName = 'readTokenLock'
+const lockReadToken = <Result>(fn: () => Result | Promise<Result>) => {
+    if (navigator.locks) {
+        return navigator.locks.request(readTokenLockName, {
+            mode: "exclusive",
+        }, lock => fn())
     }
 
-    const { accessToken, validTo } = JSON.parse(
-        sessionStorage.getItem("accessToken")
-    );
-
-    if (Date.parse(new Date().toUTCString()) < Date.parse(validTo)) {
-        AuthorizationState.set("authorized");
-        return accessToken;
-    }
-
-    try {
-        const {
-            accessToken: newAccessToken,
-            validTo: newValidTo,
-            refreshToken,
-        } = await refreshTokens();
-        useToken(newAccessToken, newValidTo, refreshToken);
-        return newAccessToken;
-    } catch (e) {
-        AuthorizationState.set("unauthorized");
-        throw e;
-    }
+    return (async () => await fn ())()
 }
 
-function refreshTokens() {
-    const promise = new Promise<{
-        accessToken: any;
-        validTo: any;
-        refreshToken: any;
-    }>(async (resolve) => {
+export function readAccessToken(): Promise<string> {
+    function refreshTokens() {
         const refreshToken = JSON.parse(localStorage.getItem("refreshToken"));
 
         if (!refreshToken) {
-            throw new Error("Refresh token is not set");
+            throw new Error("Refresh token was not found");
         }
 
         const request = fetch(
@@ -97,17 +33,80 @@ function refreshTokens() {
             }
         );
 
-        const result = await handleResponse(request)
-        resolve(result)
-    })
+        return handleLoginResponse(request)
+    }
 
-    tokenReadLock = promise.then(x => undefined)
-    return promise
+    async function readAccessToken(): Promise<string> {
+        const { accessToken, validTo } = JSON.parse(
+            sessionStorage.getItem("accessToken")
+        );
+
+        if (Date.parse(new Date().toUTCString()) < Date.parse(validTo)) {
+            AuthorizationState.set("authorized");
+            return accessToken;
+        }
+
+        try {
+            const {
+                accessToken: newAccessToken,
+                validTo: newValidTo,
+                refreshToken,
+            } = await refreshTokens();
+            useToken(newAccessToken, newValidTo, refreshToken);
+            return newAccessToken;
+        } catch (e) {
+            AuthorizationState.set("unauthorized");
+            throw e;
+        }
+    }
+
+    return lockReadToken(readAccessToken)
 }
 
-async function handleResponse(fetchPromise: Promise<Response>) {
+export function login(email: string, password: string) {
+    return lockReadToken(async () => {
+        const request = fetch(`${urlBase}/account/login`, {
+            method: "POST",
+            body: JSON.stringify({ email, password }),
+            headers: commonHeaders,
+        });
+
+        const result = await handleLoginResponse(request);
+        useToken(result.accessToken, result.validTo, result.refreshToken);
+    });
+}
+
+export function register(email: string, password: string) {
+    return lockReadToken(async () => {
+        const request = fetch(`${urlBase}/account/register`, {
+            method: "POST",
+            body: JSON.stringify({ email, password }),
+            headers: commonHeaders,
+        });
+
+        const result = await handleLoginResponse(request);
+        useToken(result.accessToken, result.validTo, result.refreshToken);
+    });
+}
+
+function useToken(accessToken: string, validTo: Date, refreshToken: string) {
+    sessionStorage.setItem(
+        "accessToken",
+        JSON.stringify({ accessToken, validTo })
+    );
+    localStorage.setItem("refreshToken", JSON.stringify({ refreshToken }));
+
+    AuthorizationState.set('authorized')
+}
+
+function clearTokens() {
+    sessionStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+}
+
+async function handleLoginResponse(fetchPromise: Promise<Response>) {
     const response = await fetchPromise;
-    const json = await response.json();
+    const json = await response.json().catch(_ => { message: 'Invalid response' });
 
     if (response.ok) {
         if (!json.accessToken || !json.accessTokenValidTo || !json.refreshToken) {

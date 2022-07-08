@@ -63,6 +63,7 @@ public class RefreshTokenRepository : IRefreshTokenRepository
 
 	public Task RemoveAsync(RefreshTokenDbo refreshToken)
 	{
+		// todo: throw 404 NotFound if token was already removed
 		dbContext.RefreshTokens.Remove(refreshToken);
 		return dbContext.SaveChangesAsync();
 	}

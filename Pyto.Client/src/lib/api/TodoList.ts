@@ -19,8 +19,6 @@ export async function getTodoList() : Promise<{ todoList: TodoModel[] }> {
 }
 
 export async function updateTodo(todo: TodoModel): Promise<TodoModel> {
-    console.log(todo);
-    
     return await fetch(`${urlBase}/todo-list`, {
         method: 'PATCH',
         headers: {
