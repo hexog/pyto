@@ -6,6 +6,6 @@
     }
 </script>
 
-<aside class="h-full bg-nord-1 text-nord-6 fixed { isShrunk ? 'w-16' : 'w-3/12' } transition-all" on:click={changeSize}>
+<aside class="h-full bg-nord-1 text-nord-6 fixed w-3/12 { isShrunk ? '-translate-x-full' : '' } transition-all" on:click={changeSize}>
 
 </aside>

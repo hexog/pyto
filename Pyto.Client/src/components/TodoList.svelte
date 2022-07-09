@@ -2,6 +2,7 @@
   import TodoListService, { TodoModel } from "../lib/TodoListService";
   import Button from "./Form/Button.svelte";
   import InputText from "./Form/InputText.svelte";
+import InputTextArea from "./Form/InputTextArea.svelte";
   import Todo from "./Todo.svelte";
   const todoList = TodoListService.todoList;
 
@@ -9,11 +10,13 @@
     TodoListService.updateTodo(todoEvent.detail);
   }
 
+  let newTodoInput: { focus: () => void }
   let newTodoContent = "";
   let isAddingTodo = false;
 
   function addTodo() {
     isAddingTodo = true;
+    setTimeout(() => newTodoInput.focus())
   }
 
   function cancelAddTodo() {
@@ -49,7 +52,7 @@
     {#if isAddingTodo}
       <div>
         <!-- <input type="text" id="new-todo-input" bind:value={newTodoContent} /> -->
-        <InputText bind:value={newTodoContent} />
+        <InputTextArea bind:value={newTodoContent} bind:this={newTodoInput} />
       </div>
       <div>
         <Button on:click={confirmAddTodo}>Add</Button>

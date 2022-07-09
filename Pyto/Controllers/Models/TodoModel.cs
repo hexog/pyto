@@ -7,7 +7,7 @@ public class TodoModel
 {
 	public Guid Id { get; set; }
 	public string Content { get; set; }
-	public TodoState State { get; set; } // TODO: enum validation
+	public TodoState State { get; set; }
 
 	public static explicit operator TodoModel(Todo todo)
 	{
