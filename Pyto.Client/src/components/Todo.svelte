@@ -36,7 +36,7 @@
   };
 </script>
 
-<div class="flex flex-row items-center gap-x-1 my-3 mx-5 w-4/12 h-6">
+<div class="flex flex-row items-center gap-x-1 w-4/12 rounded py-2 px-3 hover:bg-nord-1">
   <div class="flex items-center justify-center">
     <input
       class="todo-check"
@@ -74,6 +74,7 @@
     width: 25px;
     height: 19px;
     background-color: rgba(0, 0, 0, 0);
+    cursor: pointer;
   }
 
   .todo-check + label span:before,
@@ -87,7 +88,7 @@
     width: 1.25rem;
     height: 1.25rem;
     background: transparent;
-    border: 2px solid var(--primary);
+    @apply border-2 border-nord-9;
   }
 
   .todo-check + label span:after {
@@ -97,7 +98,7 @@
 
   .todo-check:checked + label span:before {
     z-index: 100;
-    background-color: var(--primary);
+    @apply bg-nord-9;
   }
 
   .invisible {
