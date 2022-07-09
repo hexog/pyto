@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Pyto.Models;
 
 namespace Pyto.Data.Todo;
 
@@ -60,6 +61,7 @@ public class TodoRepository : ITodoRepository
 		{
 			throw new InvalidOperationException($"Could not find Todo with id: {todoId}");
 		}
+
 		return ConvertToDto(todo);
 	}
 
