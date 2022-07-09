@@ -5,5 +5,5 @@ namespace Pyto.Controllers.Models;
 
 public class CreateTodoRequest
 {
-	[Required] public string Name { get; set; }
+	[Required] public string Content { get; set; }
 }

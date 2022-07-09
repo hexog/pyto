@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { TodoModel, TodoState } from "src/lib/TodoListService";
   import { createEventDispatcher } from "svelte";
+  import Button from "./Form/Button.svelte";
 
   export let id: string;
   export let content: string;
@@ -23,20 +24,23 @@
     todoChanged()
   };
 
-  const onTodoChanged = createEventDispatcher();
+  const dispatch = createEventDispatcher();
 
-  const todoChanged = () => {
-    const todo: TodoModel = {
+  const getTodoModel = (): TodoModel => {
+    return {
       id,
       content,
       state: isChecked ? 'checked' : 'unchecked',
-    };
-    
-    onTodoChanged("todochange", todo);
+    }
+  }
+
+  const todoChanged = () => {
+    const todo: TodoModel = getTodoModel()
+    dispatch("todochange", todo);
   };
 </script>
 
-<div class="flex flex-row items-center gap-x-1 w-4/12 rounded py-2 px-3 hover:bg-nord-1">
+<div class="flex flex-row items-center gap-x-1 w-4/12 rounded py-2 px-3 hover:bg-nord-1 transition-colors">
   <div class="flex items-center justify-center">
     <input
       class="todo-check"
@@ -62,6 +66,9 @@
       on:blur={stopEditing}
     />
   </div>
+  <Button on:click={() => dispatch('tododelete', getTodoModel())}>
+    DELETE
+  </Button>
 </div>
 
 <style lang="postcss">

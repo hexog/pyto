@@ -1,5 +1,5 @@
 import { Readable, writable, Writable } from "svelte/store";
-import { getTodoList, updateTodo } from "./api/TodoList";
+import { addTodo, deleteTodo, getTodoList, updateTodo } from "./api/TodoList";
 
 export type TodoState = "checked" | "unchecked";
 
@@ -24,8 +24,20 @@ export class TodoListService {
     this._todoList.set(response.todoList);
   }
 
-  public async updateTodo(todo: TodoModel)  {
+  public async updateTodo(todo: TodoModel) {
     await updateTodo(todo)
+  }
+
+  public async addTodo(todo: { content: string }) {
+    const createdTodo = await addTodo(todo)
+    this._todoList.update(x => [...x, createdTodo])
+    await this.fetchTodoList()
+  }
+
+  public async deleteTodo(todo: TodoModel) {
+    await deleteTodo(todo.id)
+    this._todoList.update(x => x.filter(y => y.id !== todo.id))
+    await this.fetchTodoList()
   }
 }
 

@@ -9,6 +9,10 @@ async function getRequiredHeaders() {
     }
 }
 
+const jsonContentHeaders = {
+    'Content-Type': 'application/json'
+}
+
 export async function getTodoList() : Promise<{ todoList: TodoModel[] }> {
     return await fetch(`${urlBase}/todo-list`, {
         method: 'GET',
@@ -19,12 +23,33 @@ export async function getTodoList() : Promise<{ todoList: TodoModel[] }> {
 }
 
 export async function updateTodo(todo: TodoModel): Promise<TodoModel> {
-    return await fetch(`${urlBase}/todo-list`, {
-        method: 'PATCH',
+    return await fetch(`${urlBase}/todo-list/todos`, {
+        method: 'PUT',
         headers: {
             ...await getRequiredHeaders(),
-            'Content-Type': 'application/json',
+            ...jsonContentHeaders,
         },
         body: JSON.stringify(todo)
     }).then(x => x.json())
+}
+
+
+export async function addTodo(todo: { content: string }): Promise<TodoModel> {
+    return await fetch(`${urlBase}/todo-list/todos`, {
+        method: 'POST',
+        headers: {
+            ...await getRequiredHeaders(),
+            ...jsonContentHeaders,
+        },
+        body: JSON.stringify(todo)
+    }).then(x => x.json())
+}
+
+export async function deleteTodo(id: string): Promise<void> {
+    await fetch(`${urlBase}/todo-list/todos/${id}`, {
+        method: 'DELETE',
+        headers: {
+            ...(await getRequiredHeaders())
+        }
+    })
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import TodoListService from "../lib/TodoListService";
+  import TodoListService, { TodoModel } from "../lib/TodoListService";
   import Button from "./Form/Button.svelte";
-import InputText from "./Form/InputText.svelte";
+  import InputText from "./Form/InputText.svelte";
   import Todo from "./Todo.svelte";
   const todoList = TodoListService.todoList;
 
@@ -22,8 +22,18 @@ import InputText from "./Form/InputText.svelte";
 
   function confirmAddTodo() {
     isAddingTodo = false;
-    // TodoListService.addTodo
-    newTodoContent = "";
+
+    if (newTodoContent) {
+      TodoListService.addTodo({
+        content: newTodoContent,
+      });
+      newTodoContent = "";
+    }
+  }
+
+  function onTodoDelete(event) {
+    const todo = event.detail as TodoModel
+    TodoListService.deleteTodo(todo)
   }
 </script>
 
@@ -32,7 +42,8 @@ import InputText from "./Form/InputText.svelte";
 >
   <div class="flex flex-col flex-grow w-11/12 lg:w-6/12 my-12 gap-y-1">
     {#each $todoList as todo}
-      <Todo {...todo} on:todochange={onTodoChange} />
+        <!-- TODO: drag n drop -->
+      <Todo {...todo} on:todochange={onTodoChange} on:tododelete={onTodoDelete} />
     {/each}
 
     {#if isAddingTodo}

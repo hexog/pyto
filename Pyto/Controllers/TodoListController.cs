@@ -38,7 +38,7 @@ public class TodoListController : ApplicationControllerBase
 		return (TodoListResponse)await todoService.GetAllAsync().ConfigureAwait(false);
 	}
 
-	[HttpPost]
+	[HttpPost("todos")]
 	public async Task<ActionResult<TodoModel>> CreateTodo([FromBody] CreateTodoRequest createTodoRequest)
 	{
 		if (this.ModelState.IsValid == false)
@@ -47,12 +47,12 @@ public class TodoListController : ApplicationControllerBase
 		}
 
 		var todoListService = await GetTodoListService().ConfigureAwait(true);
-		var todo = await todoListService.CreateAsync(new(createTodoRequest.Name)).ConfigureAwait(false);
+		var todo = await todoListService.CreateAsync(new(createTodoRequest.Content)).ConfigureAwait(false);
 
 		return (TodoModel)todo;
 	}
 
-	[HttpPatch]
+	[HttpPut("todos")]
 	public async Task<ActionResult<TodoModel>> UpdateTodo([FromBody] TodoModel todoModel)
 	{
 		if (this.ModelState.IsValid == false)
@@ -66,7 +66,7 @@ public class TodoListController : ApplicationControllerBase
 		return (TodoModel)todo;
 	}
 
-	[HttpDelete("{todoId:guid}")]
+	[HttpDelete("todos/{todoId:guid}")]
 	public async Task<ActionResult> DeleteTodo(Guid todoId)
 	{
 		if (this.ModelState.IsValid == false)
