@@ -264,3 +264,5 @@ FakesAssemblies/
 
 app.db
 app.db*
+
+.fake

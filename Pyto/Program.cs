@@ -63,7 +63,6 @@ builder.Services
 		o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
 	});
 
-
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, o =>
@@ -98,12 +97,16 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 app.UseAuthorization();
 app.UseAuthentication();
 
 app.MapControllers();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+var dbContext = app.Services.GetRequiredService<ApplicationDbContext>();
+dbContext.Database.Migrate();
 
 DataInitializer.InitializeRoles(app.Services).Wait();
 

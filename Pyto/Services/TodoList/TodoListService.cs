@@ -54,8 +54,8 @@ public class TodoListService : ITodoListService
 
 	public async Task<Todo> UpdateAsync(Todo todo)
 	{
-		todo = await todoRepository.ReadAsync(todo.Id).ConfigureAwait(false);
-		if (todo.AuthorId != Author.Id)
+		var existingTodo = await todoRepository.ReadAsync(todo.Id).ConfigureAwait(false);
+		if (existingTodo.AuthorId != Author.Id)
 		{
 			throw new ForbiddenException();
 		}
@@ -71,6 +71,6 @@ public class TodoListService : ITodoListService
 			throw new ForbiddenException();
 		}
 
-		await DeleteAsync(todo).ConfigureAwait(false);
+		await todoRepository.RemoveAsync(todo).ConfigureAwait(false);
 	}
 }
