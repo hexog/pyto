@@ -1,10 +1,16 @@
 <script lang="ts">
-    export let value = ''
-    let input: HTMLTextAreaElement
+  export let value = "";
+  export let rows = 20;
+  let input: HTMLTextAreaElement;
 
-    export function focus() {
-        input.focus()
-    }
+  export function focus() {
+    input.focus();
+  }
 </script>
 
-<textarea bind:value={value} class="bg-nord-2 px-3 h-8 rounded-sm shadow focus:outline-none" bind:this={input}></textarea>
+<textarea
+  bind:value
+  class="flex flex-grow outline-1 outline-none bg-nord-2 text-nord-6 w-full resize-none z-50 border-b-2 border-b-nord-6 py-2 px-3"
+  bind:this={input}
+  {rows}
+/>

@@ -11,4 +11,4 @@
   }
 </script>
 
-<input type="text" {id} bind:value class={classes} bind:this={input} />
+<input type="password" {id} bind:value class={classes} bind:this={input} />

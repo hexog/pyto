@@ -105,8 +105,7 @@ app.MapControllers();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-var dbContext = app.Services.GetRequiredService<ApplicationDbContext>();
-dbContext.Database.Migrate();
+ApplyDatabaseMigrations();
 
 DataInitializer.InitializeRoles(app.Services).Wait();
 
@@ -128,4 +127,11 @@ void AddApplicationServices(IServiceCollection serviceCollection)
 	serviceCollection
 	   .AddScoped<IAuthenticationService, AuthenticationService>()
 	   .AddTransient<ITodoListServiceFactory, TodoListServiceFactory>();
+}
+
+void ApplyDatabaseMigrations()
+{
+	using var serviceScope = app.Services.CreateScope();
+	var dbContext = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+	dbContext.Database.Migrate();
 }

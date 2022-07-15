@@ -13,7 +13,7 @@ const lockReadToken = <Result>(fn: () => Result | Promise<Result>) => {
         }, lock => fn())
     }
 
-    return (async () => await fn ())()
+    return (async () => await fn())()
 }
 
 export function readAccessToken(): Promise<string> {
@@ -73,7 +73,7 @@ export function login(email: string, password: string) {
 
         const result = await handleLoginResponse(request);
         useToken(result.accessToken, result.validTo, result.refreshToken);
-    });
+    }).catch(x => console.log(x))
 }
 
 export function register(email: string, password: string) {
@@ -134,9 +134,9 @@ export async function logout(): Promise<never | void> {
         },
     });
 
-    const json = await response.json();
 
     if (!response.ok) {
+        const json = await response.json();
         throw new Error(json.message);
     }
 

@@ -1,0 +1,1 @@
+export const classes = "bg-nord-2 px-3 h-8 rounded-sm shadow focus:outline-none"

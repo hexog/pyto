@@ -41,6 +41,7 @@
   };
 
   const stopEditing = (confirm: boolean = true) => {
+    console.log(isEditing);
     isEditing = false;
 
     if (!confirm) {
@@ -159,7 +160,7 @@
   </div>
 
   <div class="flex flex-col gap-y-1">
-    <Button type="secondary" on:click={changeEditingState}>
+    <Button color="secondary" on:click={changeEditingState}>
       {#if isEditing}
         <div class="flex h-4 w-5 -mx-1 items-center justify-center">
           <svg
@@ -201,7 +202,7 @@
     </Button>
     {#if isHighlighted && canBeFullView}
       <Button
-        type="secondary"
+        color="secondary"
         on:click={() => dispatch("tododelete", getTodoModel())}
       >
         <div class="flex h-5 w-5 -mx-1 items-center justify-center">
@@ -221,7 +222,7 @@
     {/if}
   </div>
   {#if canBeFullView}
-    <Button type="secondary" on:click={changeViewModeWhenNotSelectingText}>
+    <Button color="secondary" on:click={changeViewModeWhenNotSelectingText}>
       {#if isEditing}
         <div class="flex h-5 w-3 items-center justify-center">
           <svg
@@ -296,8 +297,8 @@
               style="enable-background:new 0 0 330 330;"
               xml:space="preserve"
               class="fill-nord-6 {isHighlighted
-                ? ''
-                : 'rotate-180'} transition-transform"
+                ? 'rotate-180'
+                : ''} transition-transform"
               ><path
                 id="XMLID_225_"
                 d="M325.607,79.393c-5.857-5.857-15.355-5.858-21.213,0.001l-139.39,139.393L25.607,79.393	c-5.857-5.857-15.355-5.858-21.213,0.001c-5.858,5.858-5.858,15.355,0,21.213l150.004,150c2.813,2.813,6.628,4.393,10.606,4.393	s7.794-1.581,10.606-4.394l149.996-150C331.465,94.749,331.465,85.251,325.607,79.393z"
@@ -309,71 +310,70 @@
       {/if}
     </Button>
   {:else if isEditing}
-  <Button type="secondary" on:click={changeViewModeWhenNotSelectingText}>
-    <div class="flex h-5 w-3 items-center justify-center">
-    <svg
-      version="1.1"
-      id="Capa_1"
-      xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink"
-      class="fill-nord-6"
-      x="0px"
-      y="0px"
-      viewBox="0 0 490.29 490.29"
-      style="enable-background:new 0 0 490.29 490.29;"
-      xml:space="preserve"
-    >
-      <g>
-        <g>
+    <Button color="secondary" on:click={changeViewModeWhenNotSelectingText}>
+      <div class="flex h-5 w-3 items-center justify-center">
+        <svg
+          version="1.1"
+          id="Capa_1"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          class="fill-nord-6"
+          x="0px"
+          y="0px"
+          viewBox="0 0 490.29 490.29"
+          style="enable-background:new 0 0 490.29 490.29;"
+          xml:space="preserve"
+        >
           <g>
-            <rect
-              x="206.343"
-              y="-62.678"
-              transform="matrix(-0.7071 0.7071 -0.7071 -0.7071 591.6399 245.173)"
-              width="77.399"
-              height="615.594"
-            />
+            <g>
+              <g>
+                <rect
+                  x="206.343"
+                  y="-62.678"
+                  transform="matrix(-0.7071 0.7071 -0.7071 -0.7071 591.6399 245.173)"
+                  width="77.399"
+                  height="615.594"
+                />
 
-            <rect
-              x="-9.144"
-              y="335.976"
-              transform="matrix(0.7071 -0.7071 0.7071 0.7071 -231.1054 191.4143)"
-              width="249.298"
-              height="77.399"
-            />
+                <rect
+                  x="-9.144"
+                  y="335.976"
+                  transform="matrix(0.7071 -0.7071 0.7071 0.7071 -231.1054 191.4143)"
+                  width="249.298"
+                  height="77.399"
+                />
 
-            <rect
-              x="250.136"
-              y="77.228"
-              transform="matrix(-0.7071 0.7071 -0.7071 -0.7071 721.7715 -67.1118)"
-              width="249.298"
-              height="77.399"
-            />
+                <rect
+                  x="250.136"
+                  y="77.228"
+                  transform="matrix(-0.7071 0.7071 -0.7071 -0.7071 721.7715 -67.1118)"
+                  width="249.298"
+                  height="77.399"
+                />
+              </g>
+            </g>
           </g>
-        </g>
-      </g>
-      <g />
-      <g />
-      <g />
-      <g />
-      <g />
-      <g />
-      <g />
-      <g />
-      <g />
-      <g />
-      <g />
-      <g />
-      <g />
-      <g />
-      <g />
-    </svg>
-  </div>
-</Button>
-
-{:else}
+          <g />
+          <g />
+          <g />
+          <g />
+          <g />
+          <g />
+          <g />
+          <g />
+          <g />
+          <g />
+          <g />
+          <g />
+          <g />
+          <g />
+          <g />
+        </svg>
+      </div>
+    </Button>
+  {:else}
     <Button
-      type="secondary"
+      color="secondary"
       on:click={() => dispatch("tododelete", getTodoModel())}
     >
       <div class="flex h-5 w-5 -mx-1 items-center justify-center">
@@ -435,11 +435,42 @@
   }
 
   :global(#content h1) {
-    @apply text-2xl font-semibold;
+    @apply text-4xl font-semibold;
     @apply mb-1 -mt-1.5;
   }
 
-  :global(#content * + h1) {
+  :global(#content * ~ h1) {
     @apply mt-2;
+  }
+
+  :global(#content h2) {
+    @apply text-3xl font-semibold;
+  }
+
+  :global(#content h3) {
+    @apply text-2xl font-semibold;
+    @apply text-nord-11;
+  }
+
+  :global(#content h4) {
+    @apply text-xl font-bold;
+    @apply text-nord-12;
+  }
+
+  :global(#content h5) {
+    @apply text-lg font-bold;
+    @apply text-nord-13;
+  }
+
+  :global(#content h6) {
+    @apply font-bold;
+  }
+
+  :global(strong) {
+    @apply text-nord-14;
+  }
+
+  :global(em) {
+    @apply text-nord-7;
   }
 </style>

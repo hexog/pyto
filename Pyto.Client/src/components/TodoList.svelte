@@ -2,7 +2,7 @@
   import TodoListService, { TodoModel } from "../lib/TodoListService";
   import Button from "./Form/Button.svelte";
   import InputText from "./Form/InputText.svelte";
-import InputTextArea from "./Form/InputTextArea.svelte";
+  import InputTextArea from "./Form/InputTextArea.svelte";
   import Todo from "./Todo.svelte";
   const todoList = TodoListService.todoList;
 
@@ -10,13 +10,13 @@ import InputTextArea from "./Form/InputTextArea.svelte";
     TodoListService.updateTodo(todoEvent.detail);
   }
 
-  let newTodoInput: { focus: () => void }
+  let newTodoInput: { focus: () => void };
   let newTodoContent = "";
   let isAddingTodo = false;
 
   function addTodo() {
     isAddingTodo = true;
-    setTimeout(() => newTodoInput.focus())
+    setTimeout(() => newTodoInput.focus());
   }
 
   function cancelAddTodo() {
@@ -35,8 +35,8 @@ import InputTextArea from "./Form/InputTextArea.svelte";
   }
 
   function onTodoDelete(event) {
-    const todo = event.detail as TodoModel
-    TodoListService.deleteTodo(todo)
+    const todo = event.detail as TodoModel;
+    TodoListService.deleteTodo(todo);
   }
 </script>
 
@@ -45,14 +45,22 @@ import InputTextArea from "./Form/InputTextArea.svelte";
 >
   <div class="flex flex-col flex-grow w-11/12 lg:w-6/12 my-12 gap-y-1">
     {#each $todoList as todo}
-        <!-- TODO: drag n drop -->
-      <Todo {...todo} on:todochange={onTodoChange} on:tododelete={onTodoDelete} />
+      <!-- TODO: drag n drop -->
+      <Todo
+        {...todo}
+        on:todochange={onTodoChange}
+        on:tododelete={onTodoDelete}
+      />
     {/each}
 
     {#if isAddingTodo}
-      <div>
+      <div class="mb-2">
         <!-- <input type="text" id="new-todo-input" bind:value={newTodoContent} /> -->
-        <InputTextArea bind:value={newTodoContent} bind:this={newTodoInput} />
+        <InputTextArea
+          bind:value={newTodoContent}
+          bind:this={newTodoInput}
+          rows={newTodoContent.split("\n").length}
+        />
       </div>
       <div>
         <Button on:click={confirmAddTodo}>Add</Button>

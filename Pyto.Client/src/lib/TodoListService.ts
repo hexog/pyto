@@ -1,3 +1,4 @@
+import { AuthorizationState } from "../AppState";
 import { Readable, writable, Writable } from "svelte/store";
 import { addTodo, deleteTodo, getTodoList, updateTodo } from "./api/TodoList";
 
@@ -16,7 +17,7 @@ export class TodoListService {
   }
 
   constructor() {
-    this.fetchTodoList()    
+    AuthorizationState.subscribe(x => x === 'authorized' ? this.fetchTodoList() : {})
   }
 
   public async fetchTodoList() {
